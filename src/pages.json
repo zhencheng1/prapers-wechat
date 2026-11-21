@@ -1,0 +1,102 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": { "navigationBarTitleText": "刷题盒子" }
+    },
+    {
+      "path": "pages/banks/index",
+      "style": { "navigationBarTitleText": "题库" }
+    },
+    {
+      "path": "pages/wrong/index",
+      "style": { "navigationBarTitleText": "错题本" }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": { "navigationBarTitleText": "我的" }
+    },
+    {
+      "path": "pages/bank/detail",
+      "style": { "navigationBarTitleText": "题库详情" }
+    },
+    {
+      "path": "pages/quiz/index",
+      "style": { "navigationBarTitleText": "练习" }
+    },
+    {
+      "path": "pages/quiz/result",
+      "style": { "navigationBarTitleText": "练习结果" }
+    },
+    {
+      "path": "pages/import/index",
+      "style": { "navigationBarTitleText": "导入题库" }
+    },
+    {
+      "path": "pages/import/preview",
+      "style": { "navigationBarTitleText": "导入预览" }
+    },
+    {
+      "path": "pages/import/pdf",
+      "style": { "navigationBarTitleText": "PDF 导入" }
+    },
+    {
+      "path": "pages/favorite/index",
+      "style": { "navigationBarTitleText": "我的收藏" }
+    },
+    {
+      "path": "pages/stats/index",
+      "style": { "navigationBarTitleText": "学习统计" }
+    },
+    {
+      "path": "pages/settings/index",
+      "style": { "navigationBarTitleText": "设置" }
+    },
+    {
+      "path": "pages/backup/index",
+      "style": { "navigationBarTitleText": "备份与恢复" }
+    },
+    {
+      "path": "pages/about/index",
+      "style": { "navigationBarTitleText": "关于" }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "刷题盒子",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f7fb"
+  },
+  "tabBar": {
+    "color": "#9ca3af",
+    "selectedColor": "#4f6ef7",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/banks/index",
+        "text": "题库",
+        "iconPath": "static/tabbar/book.png",
+        "selectedIconPath": "static/tabbar/book-active.png"
+      },
+      {
+        "pagePath": "pages/wrong/index",
+        "text": "错题",
+        "iconPath": "static/tabbar/wrong.png",
+        "selectedIconPath": "static/tabbar/wrong-active.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/user.png",
+        "selectedIconPath": "static/tabbar/user-active.png"
+      }
+    ]
+  }
+}

@@ -1,0 +1,200 @@
+page {
+  background: $bg;
+  color: $text;
+  font-size: $font-md;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
+}
+
+view,
+text,
+scroll-view,
+button,
+input {
+  box-sizing: border-box;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx 24rpx calc(40rpx + env(safe-area-inset-bottom));
+}
+
+.card {
+  background: $card;
+  border-radius: $radius;
+  padding: 28rpx;
+  box-shadow: 0 6rpx 24rpx rgba(17, 24, 39, 0.04);
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.between {
+  justify-content: space-between;
+}
+
+.center {
+  justify-content: center;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: $text;
+}
+
+.subtitle {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $text;
+}
+
+.muted {
+  color: $text-sub;
+}
+
+.light {
+  color: $text-light;
+}
+
+.small {
+  font-size: $font-sm;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.line1 {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.divider {
+  height: 1rpx;
+  background: $border;
+  margin: 24rpx 0;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  padding: 0 32rpx;
+  border-radius: 44rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  border: none;
+  line-height: 1;
+  margin: 0;
+  background: $bg;
+  color: $text;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn-primary {
+  background: $primary;
+  color: #ffffff;
+}
+
+.btn-soft {
+  background: $primary-soft;
+  color: $primary;
+}
+
+.btn-danger {
+  background: $danger-soft;
+  color: $danger;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: $text-sub;
+  border: 1rpx solid $border;
+}
+
+.btn-small {
+  height: 64rpx;
+  padding: 0 24rpx;
+  border-radius: 32rpx;
+  font-size: 24rpx;
+}
+
+.btn[disabled] {
+  opacity: 0.45;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: $primary-soft;
+  color: $primary;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+.empty {
+  padding: 80rpx 24rpx;
+  text-align: center;
+  color: $text-light;
+  font-size: 26rpx;
+}
+
+.section {
+  margin-top: 32rpx;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+}
+
+.press {
+  transition: opacity 0.15s ease;
+}
+
+.press:active {
+  opacity: 0.7;
+}

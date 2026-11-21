@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ESNext", "DOM"],
+    "strict": true,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["@dcloudio/types", "vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "vite.config.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}
