@@ -203,6 +203,7 @@ export interface QuizResult {
   durationMs: number
   wrongNos: number[]
   score: number | null
+  finishedAt: number
 }
 
 export interface BackupBank {

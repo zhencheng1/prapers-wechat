@@ -171,7 +171,7 @@ function nextPage(): void {
 }
 
 .dot-empty {
-  background: #e5e7eb;
+  background: $border;
 }
 
 .grid-scroll {

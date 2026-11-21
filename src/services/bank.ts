@@ -29,16 +29,19 @@ import {
   clearFavorites,
   clearSession,
   clearWrong,
+  loadAppMeta,
   loadFavorites,
   loadProgress,
   loadSession,
   loadWrong,
+  saveAppMeta,
   saveFavoriteEntries,
   saveProgressNow,
   saveSessionNow,
   saveWrongEntries,
 } from '@/core/storage/records'
-import { readKey, removeKey, writeKey } from '@/core/storage/uni'
+import { cancelPending } from '@/core/storage/persist'
+import { clearAllStorage, readKey, removeKey, writeKey } from '@/core/storage/uni'
 import { MAX_BANKS, MAX_QUESTIONS_FILE, MAX_QUESTIONS_STORAGE } from '@/core/constants'
 
 export interface CreateBankInput {
@@ -318,20 +321,24 @@ export async function deleteBank(meta: BankMeta): Promise<void> {
 }
 
 export async function clearAllData(): Promise<void> {
+  // 先取消延迟写入，否则清完之后定时器还会把进度/统计写回来
+  cancelPending()
+
   const banks = [...loadBanks(true)]
   for (const bank of banks) {
     await deleteBank(bank)
   }
-  try {
-    uni.clearStorageSync()
-  } catch (error) {
-    console.error('[bank] clear storage failed', error)
-  }
+  clearAllStorage()
   await removeDirectory('qb')
   await removeDirectory('backup')
   banksCache = []
   manifestCache.clear()
   chunkCache.clear()
+
+  // 只保留一条应用标记，避免示例题库在下次启动时被重新种入
+  const app = loadAppMeta()
+  app.demoSeeded = true
+  saveAppMeta(app)
 }
 
 export async function findResumableSession(): Promise<{
@@ -351,6 +358,10 @@ export async function findResumableSession(): Promise<{
 
 export function countWrong(meta: BankMeta): number {
   return loadWrong(meta).filter((entry) => entry.masteredAt === null).length
+}
+
+export function countMastered(meta: BankMeta): number {
+  return loadWrong(meta).filter((entry) => entry.masteredAt !== null).length
 }
 
 export function countFavorites(meta: BankMeta): number {

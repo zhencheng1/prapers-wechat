@@ -25,26 +25,31 @@ withDefaults(
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 100rpx 40rpx;
+  padding: 90rpx 40rpx;
   text-align: center;
+  border: 1rpx dashed $border;
+  border-radius: $radius;
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .empty-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 120rpx;
-  height: 120rpx;
+  width: 112rpx;
+  height: 112rpx;
   margin-bottom: 24rpx;
-  border-radius: 60rpx;
-  background: #eef2ff;
+  border-radius: 50%;
+  background: $sand;
   color: $primary;
-  font-size: 48rpx;
-  font-weight: 700;
+  font-family: $font-display;
+  font-size: 44rpx;
+  font-weight: 600;
 }
 
 .empty-title {
-  font-size: 30rpx;
+  font-family: $font-display;
+  font-size: 32rpx;
   font-weight: 600;
   color: $text;
 }

@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Question } from '@/types/domain'
+import { KEYS } from '@/core/storage/keys'
 
 const memory = new Map<string, unknown>()
 
@@ -112,6 +113,40 @@ describe('bank storage (storage mode)', () => {
 
     await bank.clearAllData()
     expect(bank.loadBanks()).toHaveLength(0)
-    expect(memory.size).toBe(0)
+    expect(memory.size).toBe(1)
+    expect(memory.has(KEYS.app)).toBe(true)
+    expect((memory.get(KEYS.app) as { demoSeeded: boolean }).demoSeeded).toBe(true)
+  })
+
+  it('cancels pending writes so cleared records stay cleared', async () => {
+    vi.useFakeTimers()
+    try {
+      const bank = await import('@/services/bank')
+      const records = await import('@/core/storage/records')
+      bank.clearBankCache()
+      memory.clear()
+
+      const meta = await bank.createBank({
+        meta: { name: '延迟写入' },
+        questions: [question(1)],
+      })
+      records.saveProgress(meta.id, {
+        v: 1,
+        lastNo: 1,
+        seen: [1],
+        answered: 1,
+        correct: 1,
+        updatedAt: Date.now(),
+      })
+      expect(memory.has(KEYS.progress(meta.id))).toBe(false)
+
+      await bank.clearAllData()
+      vi.advanceTimersByTime(2000)
+
+      expect(memory.has(KEYS.progress(meta.id))).toBe(false)
+      expect(bank.loadBanks()).toHaveLength(0)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

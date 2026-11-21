@@ -52,16 +52,18 @@ const openedText = computed(() =>
 <style scoped lang="scss">
 .bank-card {
   margin-bottom: 20rpx;
-  padding: 28rpx;
+  padding: 30rpx;
+  border: 1rpx solid $border;
   border-radius: $radius;
   background: $card;
-  box-shadow: 0 6rpx 24rpx rgba(17, 24, 39, 0.04);
 }
 
 .bank-name {
   margin-right: 16rpx;
-  font-size: 32rpx;
+  font-family: $font-display;
+  font-size: 34rpx;
   font-weight: 600;
+  color: $text;
 }
 
 .bank-desc {
@@ -72,7 +74,7 @@ const openedText = computed(() =>
 }
 
 .bank-meta {
-  margin: 18rpx 0 14rpx;
+  margin: 22rpx 0 14rpx;
 }
 
 .bank-foot {

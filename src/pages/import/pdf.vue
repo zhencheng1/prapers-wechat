@@ -1,60 +1,92 @@
 <template>
-  <view class="page">
-    <view class="card status-card">
-      <view class="row between">
-        <text class="title">PDF 导入</text>
-        <text class="badge">P1 · 待验证</text>
+  <view class="page pdf-page">
+    <StatusBar />
+    <NavBar title="PDF 导入" />
+
+    <view class="header">
+      <view class="status-pill">
+        <text class="tag gate-tag">P1 · 待验证</text>
+        <text class="gate-note">当前版本仅支持 JSON 导入</text>
       </view>
-      <text class="small muted status-text">
-        当前版本优先保证 JSON 导入与刷题闭环。PDF 解析依赖 pdf.js 在小程序端的文本提取能力，
-        需要先通过兼容性验证（Gate）后才会内置。
-      </text>
+      <text class="display header-title">PDF 解析，先验证再上线</text>
+      <text class="header-sub">解析依赖小程序端的文本提取能力，需要先通过兼容性验证。</text>
     </view>
 
     <view class="section">
       <SectionTitle title="支持范围" />
-      <view class="card list-card">
-        <view class="list-row">
-          <text class="dot ok-dot">✓</text>
-          <text class="small">文本型 PDF：文字可被选中、复制</text>
+      <view class="card scope-card">
+        <view class="scope-row">
+          <view class="scope-icon-wrap ok-wrap">
+            <text class="scope-icon ok-icon">✓</text>
+          </view>
+          <view class="grow scope-texts">
+            <text class="scope-title">文本型 PDF</text>
+            <text class="scope-sub">文字可被选中、复制</text>
+          </view>
         </view>
-        <view class="list-row">
-          <text class="dot no-dot">×</text>
-          <text class="small">扫描件 / 纯图片 PDF：纯前端无法 OCR</text>
+        <view class="scope-divider" />
+        <view class="scope-row">
+          <view class="scope-icon-wrap no-wrap">
+            <text class="scope-icon no-icon">×</text>
+          </view>
+          <view class="grow scope-texts">
+            <text class="scope-title">扫描件 / 纯图片 PDF</text>
+            <text class="scope-sub">纯前端无法 OCR 识别</text>
+          </view>
         </view>
-        <view class="list-row">
-          <text class="dot no-dot">×</text>
-          <text class="small">无 ToUnicode 的中文 PDF：文本可能是乱码</text>
+        <view class="scope-divider" />
+        <view class="scope-row">
+          <view class="scope-icon-wrap warn-wrap">
+            <text class="scope-icon warn-icon">△</text>
+          </view>
+          <view class="grow scope-texts">
+            <text class="scope-title">无 ToUnicode 的中文 PDF</text>
+            <text class="scope-sub">文本可能是乱码</text>
+          </view>
         </view>
       </view>
     </view>
 
     <view class="section">
       <SectionTitle title="现在可以怎么做" />
-      <view class="card">
-        <text class="small muted guide-text">
-          1. 在电脑上把 PDF 中的题目整理为 quizbank/v1 JSON；
-          2. 将 JSON 发送到微信「文件传输助手」；
-          3. 回到本页选择「JSON 导入」，预览后导入。
-        </text>
-        <button class="btn btn-primary guide-btn" @tap="goImport">去导入 JSON</button>
+      <view class="card todo-card">
+        <view class="todo-row">
+          <view class="todo-dot"><text class="todo-no">1</text></view>
+          <text class="grow todo-text">在电脑上把 PDF 中的题目整理为 quizbank/v1 JSON</text>
+        </view>
+        <view class="todo-row">
+          <view class="todo-dot"><text class="todo-no">2</text></view>
+          <text class="grow todo-text">把 JSON 发送到「文件传输助手」</text>
+        </view>
+        <view class="todo-row">
+          <view class="todo-dot"><text class="todo-no">3</text></view>
+          <text class="grow todo-text">回到「导入题库」选择文件，预览后导入</text>
+        </view>
       </view>
     </view>
 
+    <button class="btn btn-primary cta-btn" @tap="goImport">
+      <text class="cta-icon">▤</text>
+      <text>去导入 JSON</text>
+    </button>
+
     <view class="section">
       <SectionTitle title="后续计划" />
-      <view class="card">
-        <text class="small muted guide-text">
-          完成 M0 验证后，将补充：文本层提取、版面重建、题号/选项/答案解析、预览修正。
-          验证不通过时，会提供桌面端 PDF → JSON 转换工具作为兜底。
-        </text>
+      <view class="plan-chips">
+        <text class="plan-chip">文本层提取</text>
+        <text class="plan-chip">版面重建</text>
+        <text class="plan-chip">题号与选项</text>
+        <text class="plan-chip">解析拆句</text>
       </view>
+      <text class="plan-note">验证不通过时，会提供桌面端 PDF 转换工具作为兜底。</text>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import SectionTitle from '@/components/SectionTitle.vue'
+import StatusBar from '@/components/StatusBar.vue'
+import NavBar from '@/components/NavBar.vue'
 
 function goImport(): void {
   uni.navigateBack()
@@ -62,60 +94,190 @@ function goImport(): void {
 </script>
 
 <style scoped lang="scss">
-.status-card {
-  padding: 32rpx;
+.page {
+  padding: 0 48rpx calc(48rpx + env(safe-area-inset-bottom));
 }
 
-.badge {
-  padding: 6rpx 16rpx;
-  border-radius: 999rpx;
-  background: $warning-soft;
-  color: #92400e;
-  font-size: 20rpx;
-}
-
-.status-text {
-  display: block;
-  margin-top: 16rpx;
-  line-height: 1.7;
-}
-
-.list-card {
-  padding: 12rpx 24rpx;
-}
-
-.list-row {
+.header {
   display: flex;
-  align-items: flex-start;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid $border;
+  flex-direction: column;
+  gap: 18rpx;
+  padding-top: 12rpx;
 }
 
-.list-row:last-child {
-  border-bottom: none;
+.status-pill {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
 }
 
-.dot {
-  width: 40rpx;
+.gate-tag {
+  background: $sand;
+  color: #8a6a2e;
+  font-size: 17rpx;
+}
+
+.gate-note {
+  color: $text-light;
+  font-size: 18rpx;
+}
+
+.header-title {
+  font-size: 44rpx;
+}
+
+.header-sub {
+  color: $text-sub;
+  font-size: 21rpx;
+  line-height: 1.6;
+}
+
+.scope-card {
+  overflow: hidden;
+  padding: 0 26rpx;
+}
+
+.scope-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx 0;
+}
+
+.scope-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52rpx;
+  height: 52rpx;
   flex-shrink: 0;
+  border-radius: 16rpx;
+}
+
+.ok-wrap {
+  background: $primary-soft;
+}
+
+.no-wrap {
+  background: $danger-soft;
+}
+
+.warn-wrap {
+  background: $sand;
+}
+
+.scope-icon {
   font-size: 28rpx;
   font-weight: 700;
+  line-height: 1;
 }
 
-.ok-dot {
+.ok-icon {
   color: $success;
 }
 
-.no-dot {
+.no-icon {
   color: $danger;
 }
 
-.guide-text {
-  display: block;
-  line-height: 1.8;
+.warn-icon {
+  color: $warning;
 }
 
-.guide-btn {
-  margin-top: 24rpx;
+.scope-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.scope-title {
+  color: $text;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.scope-sub {
+  color: $text-light;
+  font-size: 18rpx;
+}
+
+.scope-divider {
+  height: 1rpx;
+  background: #f0ece2;
+}
+
+.todo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 26rpx 28rpx;
+}
+
+.todo-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 18rpx;
+}
+
+.todo-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36rpx;
+  height: 36rpx;
+  flex-shrink: 0;
+  border-radius: 999rpx;
+  background: $cream;
+}
+
+.todo-no {
+  color: #8a7a52;
+  font-size: 17rpx;
+  font-weight: 600;
+}
+
+.todo-text {
+  color: $text-sub;
+  font-size: 21rpx;
+  line-height: 1.5;
+}
+
+.cta-btn {
+  height: 92rpx;
+  margin-top: 28rpx;
+  gap: 14rpx;
+  border-radius: 28rpx;
+}
+
+.cta-icon {
+  color: $cream;
+  font-size: 30rpx;
+  line-height: 1;
+}
+
+.plan-chips {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.plan-chip {
+  padding: 12rpx 20rpx;
+  border: 1rpx solid $border;
+  border-radius: 999rpx;
+  background: $card;
+  color: $text-light;
+  font-size: 18rpx;
+}
+
+.plan-note {
+  display: block;
+  color: $text-light;
+  font-size: 18rpx;
+  line-height: 1.6;
 }
 </style>

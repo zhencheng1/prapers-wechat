@@ -9,13 +9,15 @@ import type {
   SessionState,
 } from '@/types/domain'
 import { buildOrder, firstUnansweredIndex } from '@/core/quiz/selector'
+import { chapterName } from '@/core/quiz/chapters'
 import { judgeAnswer, scoreAnswer } from '@/core/quiz/judge'
+import { readAllQuestions } from '@/services/bank'
 import {
   saveProgress,
   saveSession,
   saveSessionNow,
 } from '@/core/storage/records'
-import { QUESTION_MAX_MS } from '@/core/constants'
+import { DEFAULT_RANDOM_COUNT, QUESTION_MAX_MS } from '@/core/constants'
 import { clamp, newId } from '@/utils'
 import { useBankStore } from './bank'
 import { useFavoriteStore } from './favorite'
@@ -108,7 +110,7 @@ export const useQuizStore = defineStore('quiz', () => {
         startIndex = firstUnansweredIndex(order, new Set(bundle.progress.seen))
       } else if (mode === 'random') {
         order = buildOrder('random', allNos, {
-          count: options.count ?? 20,
+          count: options.count ?? DEFAULT_RANDOM_COUNT,
           seed,
         })
       } else if (mode === 'wrong') {
@@ -120,8 +122,15 @@ export const useQuizStore = defineStore('quiz', () => {
           count: settings.settings.examQuestionCount,
           seed,
         })
-      } else {
-        order = buildOrder('chapter', allNos, { pool: allNos })
+      } else if (mode === 'chapter') {
+        const chapter = options.chapter ?? ''
+        const questions = await readAllQuestions(bundle.meta)
+        const pool = chapter
+          ? questions
+              .filter((question) => chapterName(question) === chapter)
+              .map((question) => question.no)
+          : questions.map((question) => question.no)
+        order = buildOrder('chapter', allNos, { pool })
       }
 
       if (!order.length) {
@@ -355,6 +364,7 @@ export const useQuizStore = defineStore('quiz', () => {
       durationMs,
       wrongNos,
       score: exam ? (current.exam?.score ?? null) : null,
+      finishedAt: current.finishedAt ?? Date.now(),
     }
   }
 

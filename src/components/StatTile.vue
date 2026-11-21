@@ -22,22 +22,24 @@ defineProps<{
 }
 
 .stat-value {
-  font-size: 40rpx;
-  font-weight: 700;
-  line-height: 1.2;
+  font-family: $font-display;
+  font-size: 48rpx;
+  font-weight: 600;
+  line-height: 1.1;
   color: $text;
 }
 
 .stat-suffix {
   margin-left: 4rpx;
+  font-family: $font-body;
   font-size: 22rpx;
   font-weight: 400;
-  color: $text-sub;
+  color: $text-light;
 }
 
 .stat-label {
-  margin-top: 6rpx;
+  margin-top: 10rpx;
   font-size: 22rpx;
-  color: $text-sub;
+  color: $text-light;
 }
 </style>

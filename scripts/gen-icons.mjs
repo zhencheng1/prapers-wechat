@@ -4,8 +4,8 @@ import zlib from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 
 const SIZE = 81
-const GRAY = [156, 163, 175]
-const PRIMARY = [79, 110, 247]
+const GRAY = [154, 147, 134]
+const PRIMARY = [31, 74, 60]
 
 function createCanvas() {
   return new Uint8Array(SIZE * SIZE * 4)
@@ -89,9 +89,9 @@ function drawBook(color) {
 
 function drawWrong(color) {
   const canvas = createCanvas()
-  strokeCircle(canvas, 40, 40, 27, 7, color)
-  line(canvas, 30, 30, 50, 50, 7, color)
-  line(canvas, 50, 30, 30, 50, 7, color)
+  strokeRect(canvas, 23, 12, 34, 57, 6, color)
+  line(canvas, 23, 69, 40, 57, 6, color)
+  line(canvas, 40, 57, 57, 69, 6, color)
   return canvas
 }
 

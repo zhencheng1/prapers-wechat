@@ -16,7 +16,7 @@ withDefaults(
   }>(),
   {
     height: 12,
-    color: '#4f6ef7',
+    color: '#1f4a3c',
   },
 )
 </script>
@@ -26,7 +26,7 @@ withDefaults(
   width: 100%;
   overflow: hidden;
   border-radius: 999rpx;
-  background: #edf0f7;
+  background: #e8e2d3;
 }
 
 .progress-fill {

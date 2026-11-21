@@ -2,29 +2,31 @@ page {
   background: $bg;
   color: $text;
   font-size: $font-md;
-  line-height: 1.6;
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC',
-    'Microsoft YaHei', sans-serif;
+  line-height: 1.5;
+  font-family: $font-body;
 }
 
 view,
 text,
 scroll-view,
 button,
-input {
+input,
+textarea {
   box-sizing: border-box;
 }
 
 .page {
   min-height: 100vh;
-  padding: 24rpx 24rpx calc(40rpx + env(safe-area-inset-bottom));
+  padding: 0 24rpx calc(48rpx + env(safe-area-inset-bottom));
+  background: $bg;
 }
 
+.paper-card,
 .card {
   background: $card;
+  border: 1rpx solid $border;
   border-radius: $radius;
   padding: 28rpx;
-  box-shadow: 0 6rpx 24rpx rgba(17, 24, 39, 0.04);
 }
 
 .row {
@@ -51,9 +53,13 @@ input {
   min-width: 0;
 }
 
-.title {
-  font-size: 34rpx;
+.title,
+.display,
+.page-title {
+  font-family: $font-display;
+  font-size: 44rpx;
   font-weight: 600;
+  line-height: 1.25;
   color: $text;
 }
 
@@ -61,6 +67,13 @@ input {
   font-size: 30rpx;
   font-weight: 600;
   color: $text;
+}
+
+.eyebrow,
+.small-muted {
+  font-size: 22rpx;
+  color: $text-light;
+  letter-spacing: 1rpx;
 }
 
 .muted {
@@ -85,6 +98,13 @@ input {
   text-overflow: ellipsis;
 }
 
+.line2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
 .divider {
   height: 1rpx;
   background: $border;
@@ -101,7 +121,7 @@ input {
   justify-content: center;
   height: 88rpx;
   padding: 0 32rpx;
-  border-radius: 44rpx;
+  border-radius: 20rpx;
   font-size: 28rpx;
   font-weight: 500;
   border: none;
@@ -137,10 +157,14 @@ input {
 }
 
 .btn-small {
-  height: 64rpx;
-  padding: 0 24rpx;
-  border-radius: 32rpx;
+  height: 60rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
   font-size: 24rpx;
+}
+
+.btn-block {
+  width: 100%;
 }
 
 .btn[disabled] {
@@ -152,10 +176,15 @@ input {
   align-items: center;
   padding: 4rpx 14rpx;
   border-radius: 999rpx;
-  background: $primary-soft;
-  color: $primary;
+  background: $sand;
+  color: $text-sub;
   font-size: 22rpx;
   line-height: 1.5;
+}
+
+.tag-forest {
+  background: $primary-soft;
+  color: $primary;
 }
 
 .empty {
@@ -166,7 +195,7 @@ input {
 }
 
 .section {
-  margin-top: 32rpx;
+  margin-top: 40rpx;
 }
 
 .section-head {
@@ -177,8 +206,10 @@ input {
 }
 
 .section-title {
-  font-size: 30rpx;
-  font-weight: 600;
+  font-size: 24rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+  color: $text-light;
 }
 
 .safe-bottom {
@@ -189,6 +220,13 @@ input {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20rpx;
+}
+
+/* 标题头吸附在固定状态栏下方，滚动时不随内容移走。top 由各页按状态栏高度内联注入 */
+.sticky-header {
+  position: sticky;
+  z-index: 98;
+  background: $bg;
 }
 
 .press {

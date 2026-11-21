@@ -29,6 +29,18 @@
       "style": { "navigationBarTitleText": "练习结果" }
     },
     {
+      "path": "pages/chapter/index",
+      "style": { "navigationBarTitleText": "章节练习" }
+    },
+    {
+      "path": "pages/questions/index",
+      "style": { "navigationBarTitleText": "所有题目" }
+    },
+    {
+      "path": "pages/question/detail",
+      "style": { "navigationBarTitleText": "题目详情" }
+    },
+    {
       "path": "pages/import/index",
       "style": { "navigationBarTitleText": "导入题库" }
     },
@@ -62,14 +74,15 @@
     }
   ],
   "globalStyle": {
+    "navigationStyle": "custom",
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "刷题盒子",
     "navigationBarBackgroundColor": "#ffffff",
     "backgroundColor": "#f5f7fb"
   },
   "tabBar": {
-    "color": "#9ca3af",
-    "selectedColor": "#4f6ef7",
+    "color": "#9a9386",
+    "selectedColor": "#1f4a3c",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [

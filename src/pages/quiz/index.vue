@@ -1,45 +1,45 @@
 <template>
   <view v-if="loading" class="page">
+    <StatusBar />
+    <NavBar title="练习" />
     <view class="loading-box">
       <text class="muted">正在加载题目…</text>
     </view>
   </view>
 
   <view v-else-if="errorMessage" class="page">
+    <StatusBar />
+    <NavBar title="练习" />
     <EmptyState title="无法开始练习" :description="errorMessage" icon="!">
       <button class="btn btn-primary" @tap="goBackToBank">返回题库</button>
     </EmptyState>
   </view>
 
   <view v-else-if="q && session" class="page quiz-page">
-    <view class="topbar row between">
-      <view class="top-mid">
-        <text class="small bold line1">{{ quizStore.meta?.name }}</text>
-        <text class="small light">{{ positionText }}</text>
-      </view>
-      <text
-        class="favorite"
-        :class="{ active: quizStore.favoriteActive }"
-        @tap="quizStore.toggleFavoriteCurrent()"
-      >
-        {{ quizStore.favoriteActive ? '★' : '☆' }}
-      </text>
-    </view>
+    <StatusBar />
+    <NavBar title="练习" />
 
-    <view class="progress-row">
-      <ProgressBar :value="quizStore.progressPercent" :height="10" />
+    <view class="progress-block">
+      <view class="progress-head">
+        <text class="bank-label">{{ quizStore.meta?.name }}</text>
+        <view class="count">
+          <text class="cur">{{ index + 1 }}</text>
+          <text class="total">/ {{ session.order.length }}</text>
+        </view>
+      </view>
+      <ProgressBar :value="quizStore.progressPercent" :height="8" />
     </view>
 
     <view v-if="quizStore.isExam" class="exam-bar row between">
-      <text class="small">模拟考试 · 交卷后统一判分</text>
+      <text class="exam-hint-text">模拟考试 · 交卷后统一判分</text>
       <text class="exam-time">{{ timerText }}</text>
     </view>
 
     <scroll-view scroll-y class="quiz-scroll">
-      <view class="card question-card">
-        <view class="row between q-meta">
-          <text class="tag">{{ typeLabel }}</text>
-          <text class="small light">第 {{ index + 1 }} 题</text>
+      <view class="question-card">
+        <view class="q-meta">
+          <text class="type-pill">{{ typeLabel }}</text>
+          <text class="q-no">第 {{ index + 1 }} 题</text>
         </view>
         <text class="stem">{{ q.stem }}</text>
       </view>
@@ -70,43 +70,65 @@
 
       <view
         v-if="submitted"
-        class="feedback card"
+        class="feedback"
         :class="quizStore.feedback === 'correct' ? 'ok' : 'bad'"
       >
-        <view class="row between">
-          <text class="feedback-title">
-            {{ quizStore.feedback === 'correct' ? '回答正确' : '回答错误' }}
-          </text>
-          <text class="small muted">正确答案：{{ answerText }}</text>
+        <view class="feedback-head">
+          <view class="feedback-left">
+            <text class="feedback-icon">!</text>
+            <text class="feedback-title">
+              {{ quizStore.feedback === 'correct' ? '回答正确' : '回答错误' }}
+            </text>
+          </view>
+          <text class="answer-hint">正确答案 {{ answerText }}</text>
         </view>
-        <view v-if="showAnalysis" class="analysis">
-          <text class="analysis-label">解析</text>
-          <text class="analysis-text">{{ q.analysis || '暂无解析' }}</text>
-        </view>
+        <view v-if="showAnalysis" class="analysis-text">{{ q.analysis || '暂无解析' }}</view>
       </view>
 
       <view v-if="quizStore.isExam" class="exam-hint">
         <text class="small light">已选答案可以修改，交卷后统一判分。</text>
       </view>
 
+      <view v-if="q.tags && q.tags.length" class="knowledge">
+        <text class="knowledge-title">相关知识点</text>
+        <view class="chips">
+          <text v-for="tag in q.tags" :key="tag" class="chip">{{ tag }}</text>
+        </view>
+      </view>
+
       <view class="bottom-space" />
     </scroll-view>
 
-    <view class="bottom-bar row">
-      <button
-        class="btn btn-ghost bottom-btn"
-        :disabled="index === 0"
-        @tap="quizStore.prev()"
-      >
-        上一题
-      </button>
-      <button class="btn btn-soft bottom-btn" @tap="sheetVisible = true">答题卡</button>
-      <button v-if="quizStore.isExam" class="btn btn-primary bottom-btn" @tap="confirmSubmitExam">
-        交卷
-      </button>
-      <button v-else class="btn btn-primary bottom-btn" @tap="goNext">
-        {{ quizStore.isLast ? '完成' : '下一题' }}
-      </button>
+    <view class="action-bar">
+      <view class="action-row">
+        <view class="sheet-btn press" @tap="sheetVisible = true">
+          <text class="sheet-icon">▦</text>
+        </view>
+        <view
+          class="fav-btn press"
+          :class="{ active: quizStore.favoriteActive }"
+          @tap="quizStore.toggleFavoriteCurrent()"
+        >
+          <text class="fav-glyph">{{ quizStore.favoriteActive ? '★' : '☆' }}</text>
+        </view>
+        <button
+          class="act-btn act-prev"
+          :disabled="index === 0"
+          @tap="quizStore.prev()"
+        >
+          上一题
+        </button>
+        <button v-if="quizStore.isExam" class="act-btn act-next" @tap="confirmSubmitExam">
+          交卷
+        </button>
+        <button v-else class="act-btn act-next" @tap="goNext">
+          {{ quizStore.isLast ? '完成' : '下一题' }}
+          <text class="next-arrow">→</text>
+        </button>
+      </view>
+      <view class="indicator-wrap">
+        <view class="home-indicator" />
+      </view>
     </view>
 
     <AnswerSheet
@@ -129,11 +151,13 @@ import { useBankStore } from '@/stores/bank'
 import { useQuizStore } from '@/stores/quiz'
 import { useSettingsStore } from '@/stores/settings'
 import { flushAll } from '@/core/storage/persist'
-import { formatDuration } from '@/utils'
+import { decodeQuery, formatDuration } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 import OptionRow from '@/components/OptionRow.vue'
 import AnswerSheet from '@/components/AnswerSheet.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import StatusBar from '@/components/StatusBar.vue'
+import NavBar from '@/components/NavBar.vue'
 
 const appStore = useAppStore()
 const bankStore = useBankStore()
@@ -146,6 +170,7 @@ const sheetVisible = ref(false)
 const timerText = ref('')
 const bankId = ref('')
 const mode = ref<QuizMode | 'resume'>('sequence')
+const chapter = ref('')
 
 let timer: ReturnType<typeof setInterval> | null = null
 
@@ -154,7 +179,8 @@ const session = computed(() => quizStore.session)
 const index = computed(() => session.value?.index ?? 0)
 const positionText = computed(() => {
   if (!session.value) return ''
-  return `${session.value.index + 1} / ${session.value.order.length}`
+  const position = `${session.value.index + 1} / ${session.value.order.length}`
+  return chapter.value ? `${chapter.value} · ${position}` : position
 })
 const typeLabel = computed(() => {
   const labels: Record<string, string> = {
@@ -241,6 +267,7 @@ onLoad(async (options: any) => {
   bankId.value = options?.bankId ?? ''
   const requested = (options?.mode ?? 'sequence') as QuizMode | 'resume'
   mode.value = requested
+  chapter.value = options?.chapter ? decodeQuery(String(options.chapter)) : ''
   await appStore.ensureReady()
   await bankStore.init()
 
@@ -252,7 +279,7 @@ onLoad(async (options: any) => {
       const resumed = await quizStore.resume(bundle.meta, bundle)
       if (!resumed) throw new Error('没有可继续的练习')
     } else {
-      await quizStore.start(bundle.meta, requested)
+      await quizStore.start(bundle.meta, requested, { chapter: chapter.value || undefined })
     }
 
     if (quizStore.isExam) startTimer()
@@ -288,12 +315,11 @@ onUnload(() => {
 </script>
 
 <style scoped lang="scss">
-.quiz-page {
+.page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 0 24rpx;
-  padding-bottom: 0;
+  padding: 0 48rpx;
 }
 
 .loading-box {
@@ -301,75 +327,148 @@ onUnload(() => {
   text-align: center;
 }
 
-.topbar {
-  padding: 8rpx 4rpx 16rpx;
+/* 收藏按钮放在底部操作栏，避开右上角胶囊区 */
+.fav-btn {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 96rpx;
+  height: 96rpx;
+  border: 1rpx solid $border;
+  border-radius: 26rpx;
+  background: #f4f1ea;
 }
 
-.top-mid {
-  flex: 1;
-  min-width: 0;
-  padding: 0;
+.fav-glyph {
+  font-size: 36rpx;
+  line-height: 1;
+  color: $text-sub;
 }
 
-.top-mid text {
-  display: block;
+.fav-btn.active .fav-glyph {
+  color: $warning;
 }
 
-.top-mid .light {
-  margin-top: 2rpx;
+.progress-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  flex-shrink: 0;
 }
 
-.favorite {
-  width: 64rpx;
-  text-align: right;
-  font-size: 42rpx;
+.progress-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bank-label {
+  font-size: 21rpx;
+  font-weight: 400;
   color: $text-light;
 }
 
-.favorite.active {
-  color: #f59e0b;
+.count {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 4rpx;
 }
 
-.progress-row {
-  padding: 0 4rpx 16rpx;
+.cur {
+  font-family: $font-display;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: $text;
+}
+
+.total {
+  font-size: 21rpx;
+  color: $text-light;
 }
 
 .exam-bar {
-  margin-bottom: 16rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 16rpx;
   padding: 16rpx 20rpx;
-  border-radius: $radius-sm;
+  border-radius: 24rpx;
   background: $warning-soft;
-  color: #92400e;
+}
+
+.exam-hint-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 22rpx;
+  color: $warning;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .exam-time {
+  flex-shrink: 0;
   font-size: 30rpx;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  color: $warning;
 }
 
 .quiz-scroll {
   flex: 1;
   height: 0;
+  margin-top: 36rpx;
 }
 
 .question-card {
-  padding: 30rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 26rpx;
+  padding: 36rpx;
+  border-radius: 40rpx;
+  border: 1rpx solid $border;
+  background: $card;
 }
 
 .q-meta {
-  margin-bottom: 18rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.type-pill {
+  padding: 8rpx 18rpx;
+  border-radius: 12rpx;
+  background: $primary-soft;
+  color: $primary;
+  font-size: 19rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.q-no {
+  font-size: 20rpx;
+  color: $text-light;
 }
 
 .stem {
   display: block;
-  font-size: 32rpx;
-  line-height: 1.7;
+  font-family: $font-display;
+  font-size: 36rpx;
+  font-weight: 600;
+  line-height: 58rpx;
+  color: $text;
   white-space: pre-wrap;
 }
 
 .options {
-  margin-top: 24rpx;
+  margin-top: 32rpx;
 }
 
 .submit-row {
@@ -377,46 +476,77 @@ onUnload(() => {
 }
 
 .feedback {
-  margin-top: 12rpx;
-  border-left: 8rpx solid $border;
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+  margin-top: 24rpx;
+  padding: 30rpx 32rpx;
+  border-radius: 36rpx;
+  background: #faf3e4;
 }
 
-.feedback.ok {
-  border-left-color: $success;
+.feedback-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
 }
 
-.feedback.bad {
-  border-left-color: $danger;
+.feedback-left {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.feedback-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28rpx;
+  height: 28rpx;
+  border: 2rpx solid $danger;
+  border-radius: 50%;
+  font-size: 18rpx;
+  font-weight: 700;
+  line-height: 1;
+  color: $danger;
+}
+
+.feedback.ok .feedback-icon {
+  border-color: $success;
+  color: $success;
 }
 
 .feedback-title {
-  font-size: 30rpx;
+  font-size: 23rpx;
   font-weight: 600;
+  color: $danger;
 }
 
 .feedback.ok .feedback-title {
   color: $success;
 }
 
-.feedback.bad .feedback-title {
-  color: $danger;
-}
-
-.analysis {
-  margin-top: 16rpx;
-}
-
-.analysis-label {
-  display: block;
-  margin-bottom: 6rpx;
-  font-size: 22rpx;
-  color: $text-sub;
+.answer-hint {
+  flex: 1;
+  min-width: 0;
+  font-size: 21rpx;
+  font-weight: 500;
+  color: $warning;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .analysis-text {
-  font-size: 26rpx;
-  line-height: 1.7;
-  color: $text;
+  font-size: 23rpx;
+  font-weight: 400;
+  line-height: 40rpx;
+  color: #5e5646;
   white-space: pre-wrap;
 }
 
@@ -425,27 +555,131 @@ onUnload(() => {
   text-align: center;
 }
 
-.bottom-space {
-  height: 180rpx;
+.knowledge {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+  padding-top: 36rpx;
 }
 
-.bottom-bar {
+.knowledge-title {
+  font-size: 21rpx;
+  font-weight: 600;
+  letter-spacing: 3rpx;
+  color: $text-light;
+}
+
+.chips {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.chip {
+  padding: 12rpx 22rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid $border;
+  background: $card;
+  font-size: 21rpx;
+  font-weight: 400;
+  color: $text-sub;
+}
+
+.bottom-space {
+  height: 240rpx;
+}
+
+.action-bar {
   position: fixed;
   right: 0;
   bottom: 0;
   left: 0;
   z-index: 20;
   display: flex;
-  gap: 16rpx;
-  padding: 12rpx 24rpx calc(12rpx + env(safe-area-inset-bottom));
-  background: $bg;
-  box-shadow: 0 -4rpx 20rpx rgba(17, 24, 39, 0.05);
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 24rpx 40rpx calc(24rpx + env(safe-area-inset-bottom));
+  border-top: 1rpx solid $border;
+  background: $card;
 }
 
-.bottom-btn {
+.action-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.sheet-btn {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 26rpx;
+  border: 1rpx solid $border;
+  background: #f4f1ea;
+}
+
+.sheet-icon {
+  font-size: 36rpx;
+  line-height: 1;
+  color: $text-sub;
+}
+
+.act-btn {
+  display: flex;
   flex: 1;
-  height: 80rpx;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  margin: 0;
   padding: 0 12rpx;
-  font-size: 26rpx;
+  border: none;
+  border-radius: 26rpx;
+  font-size: 25rpx;
+  line-height: 1;
+}
+
+.act-btn::after {
+  border: none;
+}
+
+.act-prev {
+  background: #f4f1ea;
+  color: $text-light;
+  font-weight: 500;
+}
+
+.act-next {
+  gap: 12rpx;
+  background: $primary;
+  color: $cream;
+  font-weight: 600;
+}
+
+.act-btn[disabled] {
+  opacity: 0.45;
+}
+
+.next-arrow {
+  font-size: 30rpx;
+  line-height: 1;
+  color: $cream;
+}
+
+.indicator-wrap {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.home-indicator {
+  width: 260rpx;
+  height: 10rpx;
+  border-radius: 6rpx;
+  background: #d8d2c4;
 }
 </style>

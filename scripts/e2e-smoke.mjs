@@ -1,4 +1,8 @@
 import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 const BASE = 'http://127.0.0.1:5188'
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -102,8 +106,95 @@ async function main() {
   await navigate(`/pages/bank/detail?id=${bankId}`)
   const detailText = await evaluate('document.body.innerText')
   console.log('DETAIL_OK', detailText.includes('开始练习'), detailText.includes('顺序练习'))
+  console.log(
+    'NEW_ENTRIES_OK',
+    detailText.includes('章节练习'),
+    detailText.includes('查看所有题目'),
+  )
   await screenshot('detail')
 
+  await navigate(`/pages/chapter/index?id=${bankId}`)
+  const chapterText = await evaluate('document.body.innerText')
+  console.log(
+    'CHAPTER_LIST_OK',
+    chapterText.includes('选择章节'),
+    chapterText.includes('第一章 网络基础'),
+  )
+  await screenshot('chapters')
+  const chapterClicked = await evaluate(`(() => {
+    const card = document.querySelector('.chapter-card')
+    if (!card) return false
+    card.click()
+    return true
+  })()`)
+  console.log('CHAPTER_CLICK', chapterClicked)
+  await sleep(1600)
+  await waitFor("document.querySelectorAll('.option-row').length > 0")
+  console.log(
+    'CHAPTER_QUIZ_OK',
+    (await evaluate('document.body.innerText')).includes('第一章 网络基础'),
+  )
+  console.log(
+    'CHAPTER_POSITION',
+    await evaluate("document.querySelector('.top-mid .light')?.innerText || ''"),
+  )
+
+  await navigate(`/pages/questions/index?id=${bankId}`)
+  console.log(
+    'QUESTION_LIST_OK',
+    (await evaluate('document.body.innerText')).includes('题目列表'),
+    await evaluate("document.querySelectorAll('.question-card').length"),
+  )
+  const chipClicked = await evaluate(`(() => {
+    const chip = [...document.querySelectorAll('.filter-chip')].find((el) => el.innerText.includes('第一章'))
+    if (!chip) return false
+    chip.click()
+    return true
+  })()`)
+  await sleep(400)
+  console.log(
+    'CHAPTER_FILTER_OK',
+    chipClicked,
+    await evaluate("document.querySelectorAll('.question-card').length"),
+  )
+  await screenshot('questions')
+
+  const questionClicked = await evaluate(`(() => {
+    const card = document.querySelector('.question-card')
+    if (!card) return false
+    card.click()
+    return true
+  })()`)
+  console.log('QUESTION_CLICK', questionClicked)
+  await sleep(1400)
+  await waitFor("document.body.innerText.includes('答案与解析')")
+  console.log(
+    'QUESTION_DETAIL_OK',
+    (await evaluate('document.body.innerText')).includes('正确答案'),
+  )
+  await screenshot('question-detail')
+  const hideClicked = await evaluate(`(() => {
+    const button = [...document.querySelectorAll('.btn')].find((el) => el.innerText.includes('隐藏答案'))
+    if (!button) return false
+    button.click()
+    return true
+  })()`)
+  await sleep(300)
+  console.log(
+    'HIDE_ANSWER_OK',
+    hideClicked,
+    (await evaluate('document.body.innerText')).includes('答案已隐藏'),
+  )
+  const nextQuestion = await evaluate(`(() => {
+    const button = [...document.querySelectorAll('.btn')].find((el) => el.innerText.includes('下一题'))
+    if (!button || button.disabled) return false
+    button.click()
+    return true
+  })()`)
+  await sleep(400)
+  console.log('QUESTION_NEXT', nextQuestion)
+
+  await navigate(`/pages/bank/detail?id=${bankId}`)
   const started = await evaluate(`(() => {
     const card = [...document.querySelectorAll('.mode-card')].find((el) => el.innerText.includes('顺序练习'))
     if (!card) return false
@@ -216,7 +307,10 @@ async function main() {
   await send('DOM.enable')
   await navigate('/pages/import/index')
 
-  const importText = fs.readFileSync('tests/fixtures/import-bank.json', 'utf8')
+  const importText = fs.readFileSync(
+    path.join(ROOT, 'tests/fixtures/import-bank.json'),
+    'utf8',
+  )
   const installFilePicker = `(() => {
     const text = ${JSON.stringify(importText)}
     const original = HTMLInputElement.prototype.click

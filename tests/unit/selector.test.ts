@@ -29,6 +29,10 @@ describe('buildOrder', () => {
   it('keeps a supplied pool for wrong/favorite modes', () => {
     expect(buildOrder('wrong', [1, 2, 3], { pool: [3, 1] })).toEqual([3, 1])
   })
+
+  it('uses only the supplied pool for chapter mode', () => {
+    expect(buildOrder('chapter', [1, 2, 3, 4, 5], { pool: [2, 4] })).toEqual([2, 4])
+  })
 })
 
 describe('firstUnansweredIndex', () => {

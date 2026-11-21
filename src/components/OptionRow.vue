@@ -51,8 +51,8 @@ const mark = computed(() => {
 .option-row {
   display: flex;
   align-items: center;
-  min-height: 96rpx;
-  margin-bottom: 16rpx;
+  min-height: 100rpx;
+  margin-bottom: 18rpx;
   padding: 20rpx 24rpx;
   border: 2rpx solid $border;
   border-radius: $radius-sm;
@@ -66,10 +66,11 @@ const mark = computed(() => {
   width: 52rpx;
   height: 52rpx;
   margin-right: 20rpx;
-  border-radius: 26rpx;
-  background: #f3f4f6;
+  border-radius: 50%;
+  background: $bg;
   color: $text-sub;
-  font-size: 24rpx;
+  font-family: $font-display;
+  font-size: 26rpx;
   font-weight: 600;
 }
 

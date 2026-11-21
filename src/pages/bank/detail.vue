@@ -1,90 +1,163 @@
 <template>
   <view v-if="bank" class="page">
-    <view class="card head-card">
-      <view class="row between">
-        <view class="grow">
-          <text class="title line1">{{ bank.meta.name }}</text>
-          <text class="small muted desc line1">{{ bank.meta.description || '暂无简介' }}</text>
+    <StatusBar />
+    <NavBar title="题库详情" />
+
+    <view class="bank-header">
+      <text class="bank-title">{{ bank.meta.name }}</text>
+      <text class="bank-desc">{{ bank.meta.description || '暂无简介' }}</text>
+      <view class="tag-row">
+        <text class="tag tag-sand">{{ sourceLabel }}</text>
+        <text class="tag tag-store">{{ storageLabel }} · {{ sizeLabel }}</text>
+      </view>
+    </view>
+
+    <view class="stats-wrap">
+      <view class="stats-card">
+        <view class="stats-row">
+          <view class="stat">
+            <text class="stat-num">{{ bank.meta.questionCount }}</text>
+            <text class="stat-cap">题目</text>
+          </view>
+          <view class="stat-div" />
+          <view class="stat">
+            <text class="stat-num">{{ percent }}%</text>
+            <text class="stat-cap">已练</text>
+          </view>
+          <view class="stat-div" />
+          <view class="stat">
+            <text class="stat-num">{{ wrongCount }}</text>
+            <text class="stat-cap">错题</text>
+          </view>
+          <view class="stat-div" />
+          <view class="stat">
+            <text class="stat-num">{{ favoriteCount }}</text>
+            <text class="stat-cap">收藏</text>
+          </view>
         </view>
-        <text class="tag">{{ sourceLabel }}</text>
-      </view>
-
-      <view class="row stats-row">
-        <StatTile label="题目" :value="bank.meta.questionCount" suffix="题" />
-        <StatTile label="已练" :value="percent" suffix="%" />
-        <StatTile label="错题" :value="wrongCount" suffix="题" />
-        <StatTile label="收藏" :value="favoriteCount" suffix="题" />
-      </view>
-
-      <ProgressBar :value="percent" />
-      <view class="row between progress-foot">
-        <text class="small muted">已答 {{ bank.progress.seen.length }} 题</text>
-        <text class="small light">{{ storageLabel }} · {{ sizeLabel }}</text>
+        <view class="stats-progress-head">
+          <text class="sp-left">已答 {{ bank.progress.seen.length }} 题</text>
+          <text class="sp-right">还剩 {{ bank.meta.questionCount - bank.progress.seen.length }} 题</text>
+        </view>
+        <ProgressBar :value="percent" :height="8" />
       </view>
     </view>
 
     <view v-if="resumable" class="resume-bar press" @tap="resumeStudy">
       <view class="grow">
-        <text class="bold">继续上次练习</text>
-        <text class="small light resume-sub">
+        <text class="resume-title">继续上次练习</text>
+        <text class="resume-sub">
           {{ modeLabel(resumable.mode) }} · 第 {{ resumable.index + 1 }} / {{ resumable.order.length }} 题
         </text>
       </view>
       <text class="resume-arrow">›</text>
     </view>
 
-    <view class="section">
+    <view class="section modes-section">
       <SectionTitle title="开始练习" />
       <view class="mode-grid">
-        <view class="mode-card press" @tap="start('sequence')">
-          <text class="mode-title">顺序练习</text>
-          <text class="mode-sub">从上次位置继续</text>
+        <view class="mode-tile press" @tap="start('sequence')">
+          <text class="mode-icon">▶</text>
+          <view class="mode-text">
+            <text class="mode-title">顺序练习</text>
+            <text class="mode-sub">从上次位置继续</text>
+          </view>
         </view>
-        <view class="mode-card press" @tap="start('random')">
+
+        <view class="mode-tile press" @tap="start('random')">
+          <text class="mode-icon">⇄</text>
+          <view class="mode-text">
           <text class="mode-title">随机练习</text>
-          <text class="mode-sub">随机 20 题</text>
+          <text class="mode-sub">随机抽 {{ randomCount }} 题</text>
+          </view>
         </view>
+
+        <view class="mode-tile press" @tap="goChapters">
+          <text class="mode-icon">▤</text>
+          <view class="mode-text">
+            <text class="mode-title">章节练习</text>
+            <text class="mode-sub">按章节分组</text>
+          </view>
+        </view>
+
         <view
-          class="mode-card press"
+          class="mode-tile press"
           :class="{ disabled: wrongCount === 0 }"
           @tap="start('wrong')"
         >
-          <text class="mode-title">错题重练</text>
-          <text class="mode-sub">{{ wrongCount }} 题待复习</text>
+          <text class="mode-icon">↺</text>
+          <view class="mode-text">
+            <text class="mode-title">错题重练</text>
+            <text class="mode-sub">{{ wrongCount }} 题待复习</text>
+          </view>
         </view>
+
         <view
-          class="mode-card press"
+          class="mode-tile press"
           :class="{ disabled: favoriteCount === 0 }"
           @tap="start('favorite')"
         >
-          <text class="mode-title">收藏练习</text>
-          <text class="mode-sub">{{ favoriteCount }} 题已收藏</text>
+          <text class="mode-icon">▯</text>
+          <view class="mode-text">
+            <text class="mode-title">收藏练习</text>
+            <text class="mode-sub">{{ favoriteCount }} 题已收藏</text>
+          </view>
         </view>
-        <view class="mode-card press" @tap="start('exam')">
-          <text class="mode-title">模拟考试</text>
-          <text class="mode-sub">{{ examCountLabel }} 题 · {{ settings.settings.examDurationMin }} 分钟</text>
+
+        <view class="mode-tile press" @tap="start('exam')">
+          <text class="mode-icon">◷</text>
+          <view class="mode-text">
+            <text class="mode-title">模拟考试</text>
+            <text class="mode-sub">{{ examCountLabel }} 题 · {{ settings.settings.examDurationMin }} 分钟</text>
+          </view>
         </view>
       </view>
     </view>
 
-    <view class="section">
+    <view class="browse-wrap">
+      <view class="browse-card press" @tap="goQuestions">
+        <view class="browse-text">
+          <text class="browse-title">查看所有题目</text>
+          <text class="browse-sub">按章节筛选 · 可隐藏答案自测</text>
+        </view>
+        <text class="chev">›</text>
+      </view>
+    </view>
+
+    <view class="section manage-section">
       <SectionTitle title="题库管理" />
-      <view class="manage card">
+      <view class="manage-card">
         <view class="manage-row press" @tap="resetProgress">
-          <text>重置练习进度</text>
-          <text class="light">›</text>
+          <view class="manage-left">
+            <text class="manage-icon">↺</text>
+            <text class="manage-text">重置练习进度</text>
+          </view>
+          <text class="chev">›</text>
         </view>
+        <view class="manage-divider" />
         <view class="manage-row press" @tap="confirmDelete">
-          <text class="danger-text">删除题库</text>
-          <text class="light">›</text>
+          <view class="manage-left">
+            <text class="manage-icon danger">✕</text>
+            <text class="manage-text danger-text">删除题库</text>
+          </view>
+          <text class="chev chev-danger">›</text>
         </view>
       </view>
     </view>
 
+    <view class="spacer" />
     <text class="foot-note">{{ bank.meta.createdAt ? '导入于 ' + formatDateTime(bank.meta.createdAt) : '' }}</text>
   </view>
 
-  <view v-else-if="!loading" class="page">
+  <view v-else-if="loading" class="page">
+    <StatusBar />
+    <NavBar title="题库详情" />
+    <LoadingState text="正在读取题库…" />
+  </view>
+
+  <view v-else class="page">
+    <StatusBar />
+    <NavBar title="题库详情" />
     <EmptyState
       title="题库不存在"
       description="它可能已被删除，或存储文件已丢失。"
@@ -104,10 +177,14 @@ import { useBankStore } from '@/stores/bank'
 import { useSettingsStore } from '@/stores/settings'
 import { defaultProgress, clearSession, saveProgressNow } from '@/core/storage/records'
 import { formatDateTime } from '@/utils'
+import { DEFAULT_RANDOM_COUNT } from '@/core/constants'
 import StatTile from '@/components/StatTile.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import SectionTitle from '@/components/SectionTitle.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import LoadingState from '@/components/LoadingState.vue'
+import StatusBar from '@/components/StatusBar.vue'
+import NavBar from '@/components/NavBar.vue'
 
 const appStore = useAppStore()
 const bankStore = useBankStore()
@@ -116,6 +193,7 @@ const settings = useSettingsStore()
 const bankId = ref('')
 const bank = ref<BankBundle | null>(null)
 const loading = ref(true)
+const randomCount = DEFAULT_RANDOM_COUNT
 
 const percent = computed(() => {
   if (!bank.value?.meta.questionCount) return 0
@@ -202,6 +280,14 @@ function resumeStudy(): void {
   uni.navigateTo({ url: `/pages/quiz/index?bankId=${bankId.value}&mode=resume` })
 }
 
+function goChapters(): void {
+  uni.navigateTo({ url: `/pages/chapter/index?id=${bankId.value}` })
+}
+
+function goQuestions(): void {
+  uni.navigateTo({ url: `/pages/questions/index?id=${bankId.value}` })
+}
+
 function resetProgress(): void {
   if (!bank.value) return
   uni.showModal({
@@ -243,101 +329,336 @@ function goBanks(): void {
 </script>
 
 <style scoped lang="scss">
-.head-card {
-  padding: 32rpx;
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 0 48rpx calc(28rpx + env(safe-area-inset-bottom));
 }
 
-.desc {
-  display: block;
-  margin-top: 8rpx;
+.bank-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20rpx;
+  padding-top: 16rpx;
+  flex-shrink: 0;
+}
+
+.bank-title {
+  width: 100%;
+  font-family: $font-display;
+  font-size: 46rpx;
+  font-weight: 700;
+  line-height: 62rpx;
+  color: $text;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.bank-desc {
+  width: 100%;
+  font-size: 22rpx;
+  font-weight: 400;
+  line-height: 36rpx;
+  color: $text-sub;
+}
+
+.tag-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.tag-sand {
+  background: $sand;
+  color: $warning;
+  font-size: 19rpx;
+  font-weight: 600;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.tag-store {
+  background: $primary-soft;
+  color: $primary;
+  font-size: 19rpx;
+  font-weight: 500;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.stats-wrap {
+  padding-top: 32rpx;
+  flex-shrink: 0;
+}
+
+.stats-card {
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+  padding: 32rpx;
+  border-radius: 36rpx;
+  border: 1rpx solid $border;
+  background: $card;
 }
 
 .stats-row {
-  justify-content: space-between;
-  margin: 30rpx 0 20rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-.progress-foot {
-  margin-top: 14rpx;
+.stat {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.stat-num {
+  font-family: $font-display;
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  color: $text;
+}
+
+.stat-cap {
+  font-size: 19rpx;
+  font-weight: 400;
+  color: $text-light;
+}
+
+.stat-div {
+  flex-shrink: 0;
+  width: 1rpx;
+  height: 52rpx;
+  background: $border;
+}
+
+.stats-progress-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sp-left {
+  font-size: 20rpx;
+  color: $text-sub;
+}
+
+.sp-right {
+  font-size: 20rpx;
+  color: $text-light;
 }
 
 .resume-bar {
   display: flex;
+  flex-direction: row;
   align-items: center;
   margin-top: 20rpx;
   padding: 24rpx 28rpx;
-  border-radius: $radius;
+  border-radius: 30rpx;
   background: $primary-soft;
   color: $primary;
+  flex-shrink: 0;
+}
+
+.resume-title {
+  font-size: 24rpx;
+  font-weight: 600;
 }
 
 .resume-sub {
   display: block;
-  margin-top: 4rpx;
+  margin-top: 6rpx;
+  font-size: 19rpx;
+  color: $text-sub;
 }
 
 .resume-arrow {
   margin-left: 16rpx;
-  font-size: 48rpx;
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.modes-section {
+  margin-top: 36rpx;
+  flex-shrink: 0;
 }
 
 .mode-grid {
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   margin: 0 -8rpx;
 }
 
-.mode-card {
+.mode-tile {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 18rpx;
   width: calc(50% - 16rpx);
   margin: 8rpx;
-  padding: 24rpx;
-  border-radius: $radius-sm;
+  padding: 22rpx 24rpx;
+  border-radius: 30rpx;
+  border: 1rpx solid $border;
   background: $card;
-  box-shadow: 0 6rpx 20rpx rgba(17, 24, 39, 0.04);
 }
 
-.mode-card.disabled {
-  opacity: 0.45;
+.mode-icon {
+  flex-shrink: 0;
+  width: 34rpx;
+  font-size: 32rpx;
+  line-height: 34rpx;
+  text-align: center;
+  color: $primary;
+}
+
+.mode-text {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6rpx;
 }
 
 .mode-title {
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 600;
+  color: $text;
 }
 
 .mode-sub {
-  margin-top: 4rpx;
-  font-size: 22rpx;
-  color: $text-sub;
+  font-size: 19rpx;
+  font-weight: 400;
+  color: $text-light;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.manage {
-  padding: 0 28rpx;
+.mode-tile.disabled .mode-icon,
+.mode-tile.disabled .mode-sub {
+  color: #c4beaf;
+}
+
+.mode-tile.disabled .mode-title {
+  color: #b7b1a3;
+}
+
+.browse-wrap {
+  padding-top: 36rpx;
+  flex-shrink: 0;
+}
+
+.browse-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 26rpx 30rpx;
+  border-radius: 30rpx;
+  border: 1rpx solid $border;
+  background: $card;
+}
+
+.browse-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.browse-title {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: $text;
+}
+
+.browse-sub {
+  font-size: 19rpx;
+  font-weight: 400;
+  color: $text-light;
+}
+
+.chev {
+  margin-left: 16rpx;
+  font-size: 40rpx;
+  line-height: 1;
+  color: $text-light;
+}
+
+.manage-section {
+  margin-top: 36rpx;
+  flex-shrink: 0;
+}
+
+.manage-card {
+  border-radius: 30rpx;
+  border: 1rpx solid $border;
+  background: $card;
+  overflow: hidden;
 }
 
 .manage-row {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  min-height: 96rpx;
-  border-bottom: 1rpx solid $border;
+  padding: 28rpx 30rpx;
 }
 
-.manage-row:last-child {
-  border-bottom: none;
+.manage-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.manage-icon {
+  font-size: 30rpx;
+  line-height: 1;
+  color: $text-sub;
+}
+
+.manage-icon.danger {
+  color: $danger;
+}
+
+.manage-text {
+  font-size: 24rpx;
+  font-weight: 400;
+  color: $text;
 }
 
 .danger-text {
   color: $danger;
 }
 
+.manage-divider {
+  height: 1rpx;
+  background: $border;
+}
+
+.chev-danger {
+  color: #d3b3ac;
+}
+
+.spacer {
+  flex: 1;
+}
+
 .foot-note {
   display: block;
-  margin-top: 40rpx;
+  padding-top: 16rpx;
   text-align: center;
-  font-size: 22rpx;
+  font-size: 19rpx;
   color: $text-light;
 }
 </style>

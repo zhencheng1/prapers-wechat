@@ -1,6 +1,14 @@
 <template>
   <view class="page">
-    <view class="section first">
+    <StatusBar />
+    <NavBar title="设置" />
+
+    <view class="head">
+      <text class="head-eyebrow">刷题偏好 · 本机设置</text>
+      <text class="head-title">按你的习惯来</text>
+    </view>
+
+    <view class="section">
       <SectionTitle title="刷题偏好" />
       <view class="card group">
         <picker
@@ -18,18 +26,21 @@
           </view>
         </picker>
 
+        <view class="row-divider" />
         <view class="form-row">
           <view class="grow">
             <text class="form-label">自动下一题</text>
             <text class="form-sub">答对后自动进入下一题</text>
           </view>
           <switch
+            class="row-switch"
             :checked="settingsStore.settings.autoNext"
-            color="#4f6ef7"
+            color="#1F4A3C"
             @change="onAutoNextChange"
           />
         </view>
 
+        <view class="row-divider" />
         <picker
           :range="fontSizeLabels"
           :value="fontSizeIndex"
@@ -45,6 +56,7 @@
           </view>
         </picker>
 
+        <view class="row-divider" />
         <picker
           :range="goalLabels"
           :value="goalIndex"
@@ -80,18 +92,21 @@
           </view>
         </picker>
 
+        <view class="row-divider" />
         <view class="form-row">
           <view class="grow">
             <text class="form-label">多选少选得分</text>
             <text class="form-sub">考试模式下少选得半分</text>
           </view>
           <switch
+            class="row-switch"
             :checked="settingsStore.settings.multiplePartialCredit"
-            color="#4f6ef7"
+            color="#1F4A3C"
             @change="onPartialChange"
           />
         </view>
 
+        <view class="row-divider" />
         <picker
           :range="examCountLabels"
           :value="examCountIndex"
@@ -107,6 +122,7 @@
           </view>
         </picker>
 
+        <view class="row-divider" />
         <picker
           :range="examDurationLabels"
           :value="examDurationIndex"
@@ -134,29 +150,29 @@
           </view>
           <text class="chev">›</text>
         </view>
+
+        <view class="row-divider" />
         <view class="form-row press" @tap="confirmClear">
           <view class="grow">
-            <text class="form-label danger">清空所有数据</text>
-            <text class="form-sub">题库、记录、设置全部删除</text>
+            <text class="form-label danger">一键清空数据</text>
+            <text class="form-sub">文件目录与缓存全部删除，不可恢复</text>
           </view>
-          <text class="chev">›</text>
+          <text class="chev danger-chev">›</text>
         </view>
-      </view>
-    </view>
 
-    <view class="section">
-      <view class="card group">
+        <view class="row-divider" />
         <view class="form-row press" @tap="goAbout">
           <view class="grow">
             <text class="form-label">关于</text>
             <text class="form-sub">版本、隐私与免责声明</text>
           </view>
+          <text class="form-value">{{ appVersion }}</text>
           <text class="chev">›</text>
         </view>
       </view>
     </view>
 
-    <text class="foot-note">所有数据只保存在本机，不会上传。</text>
+    <text class="foot-note">所有数据只保存在本机，不会上传</text>
   </view>
 </template>
 
@@ -164,10 +180,14 @@
 import { computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useSettingsStore } from '@/stores/settings'
-import { clearAllData } from '@/services/bank'
+import { confirmAndClearAllData } from '@/services/localData'
+import { APP_VERSION } from '@/core/appInfo'
 import SectionTitle from '@/components/SectionTitle.vue'
+import StatusBar from '@/components/StatusBar.vue'
+import NavBar from '@/components/NavBar.vue'
 
 const settingsStore = useSettingsStore()
+const appVersion = APP_VERSION
 
 const analysisValues = ['always', 'wrong', 'never'] as const
 const analysisLabels = ['总是显示解析', '仅答错显示', '从不显示']
@@ -255,51 +275,69 @@ function goAbout(): void {
 }
 
 function confirmClear(): void {
-  uni.showModal({
-    title: '清空所有数据',
-    content: '题库、进度、错题、收藏、统计和设置都会被删除，且无法恢复。建议先导出备份。',
-    confirmText: '清空',
-    confirmColor: '#ef4444',
-    success: async (result) => {
-      if (!result.confirm) return
-      uni.showLoading({ title: '正在清空…', mask: true })
-      try {
-        await clearAllData()
-        uni.showToast({ title: '已清空', icon: 'success' })
-        setTimeout(() => {
-          uni.reLaunch({ url: '/pages/index/index' })
-        }, 400)
-      } finally {
-        uni.hideLoading()
-      }
-    },
-  })
+  confirmAndClearAllData()
 }
 </script>
 
 <style scoped lang="scss">
-.first {
-  margin-top: 0;
+.page {
+  padding: 0 48rpx calc(48rpx + env(safe-area-inset-bottom));
+}
+
+/* 页头 */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  padding-top: 8rpx;
+}
+
+.head-eyebrow {
+  font-size: 20rpx;
+  color: $text-sub;
+}
+
+.head-title {
+  font-family: $font-display;
+  font-size: 44rpx;
+  font-weight: 700;
+  line-height: 58rpx;
+  color: $text;
+}
+
+.section {
+  margin-top: 32rpx;
+}
+
+.section :deep(.section-head) {
+  margin-bottom: 16rpx;
+}
+
+.section :deep(.section-title) {
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 3rpx;
+  color: $text-light;
 }
 
 .group {
-  padding: 0 28rpx;
+  padding: 0 26rpx;
+  border-radius: 30rpx;
 }
 
 .form-row {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  min-height: 100rpx;
-  border-bottom: 1rpx solid $border;
-}
-
-.form-row:last-child {
-  border-bottom: none;
+  gap: 20rpx;
+  min-height: 104rpx;
+  padding: 18rpx 0;
 }
 
 .form-label {
   display: block;
-  font-size: 28rpx;
+  font-size: 23rpx;
+  font-weight: 500;
   color: $text;
 }
 
@@ -309,28 +347,42 @@ function confirmClear(): void {
 
 .form-sub {
   display: block;
-  margin-top: 2rpx;
-  font-size: 22rpx;
+  margin-top: 6rpx;
+  font-size: 17rpx;
   color: $text-light;
 }
 
 .form-value {
-  margin-left: 16rpx;
-  font-size: 24rpx;
-  color: $text-sub;
+  margin-left: auto;
+  font-size: 20rpx;
+  color: $text-light;
 }
 
 .chev {
-  margin-left: 10rpx;
-  color: $text-light;
-  font-size: 32rpx;
+  font-size: 30rpx;
+  line-height: 1;
+  color: #c9c2b2;
+}
+
+.danger-chev {
+  color: $danger;
+}
+
+.row-divider {
+  height: 1rpx;
+  background: $cream;
+}
+
+.row-switch {
+  /* 不再缩放，避免缩小原生开关的点击热区 */
+  flex-shrink: 0;
 }
 
 .foot-note {
   display: block;
-  margin-top: 40rpx;
+  margin-top: 48rpx;
   text-align: center;
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: $text-light;
 }
 </style>

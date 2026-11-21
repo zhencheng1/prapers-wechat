@@ -60,6 +60,25 @@ export function formatDateTime(timestamp: number): string {
   )}:${pad(date.getMinutes())}`
 }
 
+/** 相对时间描述，用于"最近备份"等场景。 */
+export function formatRelativeTime(timestamp: number): string {
+  if (!timestamp) return '从未'
+  const minutes = Math.floor((Date.now() - timestamp) / 60000)
+  if (minutes < 1) return '刚刚'
+  if (minutes < 60) return `${minutes} 分钟前`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} 小时前`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days} 天前`
+  return formatDateTime(timestamp).slice(0, 10)
+}
+
+/** 短日期 M.DD / M月D日，用于结果页等展示。 */
+export function formatShortDate(timestamp: number): string {
+  const date = new Date(timestamp)
+  return `${date.getMonth() + 1}.${pad(date.getDate())}`
+}
+
 export function utf8ByteLength(input: string): number {
   let bytes = 0
   for (let i = 0; i < input.length; i++) {
@@ -99,4 +118,13 @@ export function shuffle<T>(items: T[], seed = Date.now()): T[] {
 
 export function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
+}
+
+/** 页面参数在部分平台会保留编码，统一做一次安全解码。 */
+export function decodeQuery(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
 }

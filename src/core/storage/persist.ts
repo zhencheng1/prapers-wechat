@@ -43,3 +43,10 @@ export function flushAll(): void {
   const keys = [...pending.keys()]
   keys.forEach((key) => flushKey(key))
 }
+
+/** 丢弃尚未写入的延迟任务，避免清空数据后被补写回来。 */
+export function cancelPending(): void {
+  timers.forEach((timer) => clearTimeout(timer))
+  timers.clear()
+  pending.clear()
+}
